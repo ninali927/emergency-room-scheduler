@@ -1,7 +1,7 @@
-package io.github.ninali927.er.registry;
+package registry;
 
-import io.github.ninali927.er.models.Patient;
-import io.github.ninali927.er.util.BinaryTreePrinter;
+import models.Patient;
+import util.BinaryTreePrinter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

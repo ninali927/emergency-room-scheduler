@@ -1,7 +1,5 @@
-package io.github.ninali927.er;
-
-import io.github.ninali927.er.models.Patient;
-import io.github.ninali927.er.system.EmergencyRoom;
+import models.Patient;
+import system.EmergencyRoom;
 import java.util.List;
 
 /**

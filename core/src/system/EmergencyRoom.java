@@ -1,10 +1,10 @@
-package io.github.ninali927.er.system;
+package system;
 
-import io.github.ninali927.er.models.Patient;
-import io.github.ninali927.er.registry.PatientRegistry;
-import io.github.ninali927.er.registry.AVLPatientRegistry;
-import io.github.ninali927.er.queue.TreatmentQueue;
-import io.github.ninali927.er.queue.HeapTreatmentQueue;
+import models.Patient;
+import registry.PatientRegistry;
+import registry.AVLPatientRegistry;
+import queue.TreatmentQueue;
+import queue.HeapTreatmentQueue;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

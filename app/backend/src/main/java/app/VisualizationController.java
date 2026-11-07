@@ -2,8 +2,8 @@ package app;
 
 import com.google.gson.Gson;
 import io.javalin.websocket.WsContext;
-import io.github.ninali927.er.models.Patient;
-import io.github.ninali927.er.visualization.ISnapshot;
+import models.Patient;
+import visualization.ISnapshot;
 
 import java.util.*;
 

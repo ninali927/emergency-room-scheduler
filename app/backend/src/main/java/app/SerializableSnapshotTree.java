@@ -1,8 +1,8 @@
 package app;
 
-import io.github.ninali927.er.models.Patient;
-import io.github.ninali927.er.visualization.ISnapshot;
-import io.github.ninali927.er.visualization.SnapshotAVLTree;
+import models.Patient;
+import visualization.ISnapshot;
+import visualization.SnapshotAVLTree;
 
 import java.util.HashMap;
 import java.util.Map;

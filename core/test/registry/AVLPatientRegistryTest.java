@@ -1,8 +1,8 @@
-package io.github.ninali927.er.registry;
+package registry;
 
-import io.github.ninali927.er.models.Patient;
-import io.github.ninali927.er.registry.AVLPatientRegistry;
-import io.github.ninali927.er.registry.PatientRegistry;
+import models.Patient;
+import registry.AVLPatientRegistry;
+import registry.PatientRegistry;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

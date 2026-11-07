@@ -1,8 +1,8 @@
-package io.github.ninali927.er.visualization;
+package visualization;
 
-import io.github.ninali927.er.models.Patient;
-import io.github.ninali927.er.registry.AVLPatientRegistry;
-import io.github.ninali927.er.registry.BinaryTreeNode;
+import models.Patient;
+import registry.AVLPatientRegistry;
+import registry.BinaryTreeNode;
 
 import java.util.ArrayList;
 import java.util.List;

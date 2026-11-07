@@ -1,8 +1,8 @@
-package io.github.ninali927.er.queue;
+package queue;
 
-import io.github.ninali927.er.models.Patient;
-import io.github.ninali927.er.queue.HeapTreatmentQueue;
-import io.github.ninali927.er.queue.TreatmentQueue;
+import models.Patient;
+import queue.HeapTreatmentQueue;
+import queue.TreatmentQueue;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

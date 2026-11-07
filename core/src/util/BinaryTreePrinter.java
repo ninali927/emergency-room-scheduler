@@ -1,6 +1,6 @@
-package io.github.ninali927.er.util;
+package util;
 
-import io.github.ninali927.er.registry.BinaryTreeNode;
+import registry.BinaryTreeNode;
 
 import java.util.LinkedList;
 import java.util.Queue;

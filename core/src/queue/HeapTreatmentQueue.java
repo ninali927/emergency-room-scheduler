@@ -1,7 +1,7 @@
-package io.github.ninali927.er.queue;
+package queue;
 
-import io.github.ninali927.er.models.Patient;
-import io.github.ninali927.er.util.HeapPrinter;
+import models.Patient;
+import util.HeapPrinter;
 import java.util.Arrays;
 
 /**

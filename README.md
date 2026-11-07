@@ -21,16 +21,15 @@ The visualizer has two tabs:
 ```
 .
 ├── core/                         # Data structures and tests (no external dependencies)
-│   └── src/
-│       ├── main/java/io/github/ninali927/er/
-│       │   ├── registry/         # PatientRegistry interface + AVLPatientRegistry
-│       │   ├── queue/            # TreatmentQueue interface + HeapTreatmentQueue
-│       │   ├── system/           # EmergencyRoom (combines registry + queue)
-│       │   ├── models/           # Patient
-│       │   ├── visualization/    # SnapshotAVLTree (records tree history)
-│       │   ├── util/             # Tree / heap pretty-printers
-│       │   └── ERSchedulerDemo.java
-│       └── test/java/io/github/ninali927/er/   # JUnit 5 tests
+│   ├── src/
+│   │   ├── registry/             # PatientRegistry interface + AVLPatientRegistry
+│   │   ├── queue/                # TreatmentQueue interface + HeapTreatmentQueue
+│   │   ├── system/               # EmergencyRoom (combines registry + queue)
+│   │   ├── models/               # Patient
+│   │   ├── visualization/        # SnapshotAVLTree (records tree history)
+│   │   ├── util/                 # Tree / heap pretty-printers
+│   │   └── ERSchedulerDemo.java
+│   └── test/                     # JUnit 5 tests
 ├── app/
 │   ├── backend/                  # Gradle project: Javalin server (port 7001), compiles core/ directly
 │   └── frontend/                 # Static HTML/CSS/JS served by the backend
@@ -59,7 +58,7 @@ Run the console demo:
 ```bash
 cd app/backend
 ./gradlew classes
-java -cp build/classes/java/main io.github.ninali927.er.ERSchedulerDemo
+java -cp build/classes/java/main ERSchedulerDemo
 ```
 
 ## Tech stack

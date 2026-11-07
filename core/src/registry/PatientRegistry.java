@@ -1,6 +1,6 @@
-package io.github.ninali927.er.registry;
+package registry;
 
-import io.github.ninali927.er.models.Patient;
+import models.Patient;
 import java.util.List;
 
 /**

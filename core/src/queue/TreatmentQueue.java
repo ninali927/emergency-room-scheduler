@@ -1,6 +1,6 @@
-package io.github.ninali927.er.queue;
+package queue;
 
-import io.github.ninali927.er.models.Patient;
+import models.Patient;
 
 /**
  * An interface for a treatment priority queue.

@@ -1,6 +1,6 @@
-package io.github.ninali927.er.util;
+package util;
 
-import io.github.ninali927.er.models.Patient;
+import models.Patient;
 
 /**
  * Utility class for printing binary heap structure.

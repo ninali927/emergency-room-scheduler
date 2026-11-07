@@ -1,7 +1,7 @@
-package io.github.ninali927.er.registry;
+package registry;
 
-import io.github.ninali927.er.models.Patient;
-import io.github.ninali927.er.registry.PatientRegistry;
+import models.Patient;
+import registry.PatientRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGenerator.Simple;

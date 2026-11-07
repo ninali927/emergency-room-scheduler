@@ -1,4 +1,4 @@
-package io.github.ninali927.er.models;
+package models;
 
 import java.util.Objects;
 

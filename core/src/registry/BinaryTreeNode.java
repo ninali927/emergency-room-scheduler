@@ -1,4 +1,4 @@
-package io.github.ninali927.er.registry;
+package registry;
 
 /**
  * Interface for any binary tree node.

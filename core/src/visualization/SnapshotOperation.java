@@ -1,4 +1,4 @@
-package io.github.ninali927.er.visualization;
+package visualization;
 
 /**
  * Enumeration representing the types of operations that produce an AVL tree snapshot.

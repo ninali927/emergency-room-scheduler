@@ -1,6 +1,6 @@
-package io.github.ninali927.er.visualization;
+package visualization;
 
-import io.github.ninali927.er.registry.BinaryTreeNode;
+import registry.BinaryTreeNode;
 
 /**
  * Defines the public contract for a tree snapshot.
