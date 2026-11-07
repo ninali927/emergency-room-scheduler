@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ER Scheduler - Data Structures Visualization</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css" />
+
+    <!-- JavaScript Libraries -->
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"
+    ></script>
+
+    <!-- Application Logic -->
+    <script src="script.js"></script>
+  </head>
+
+  <body>
+    <div
+      class="container"
+      x-data="erScheduler"
+      x-cloak
+    >
+      <!-- Application Header -->
+      <header class="app-header">
+        <h1>Emergency Room Scheduler</h1>
+        <p class="app-subtitle">
+          AVL Tree Registry + Adaptive Priority Queue Visualization
+        </p>
+      </header>
+
+      <!-- Tab Navigation -->
+      <div class="tab-navigation">
+        <button
+          class="tab-button"
+          :class="{ 'active': activeTab === 'scheduler' }"
+          @click="activeTab = 'scheduler'"
+        >
+          ER Scheduler
+        </button>
+        <button
+          class="tab-button"
+          :class="{ 'active': activeTab === 'visualization' }"
+          @click="activeTab = 'visualization'"
+        >
+          AVL Tree Visualization
+        </button>
+      </div>
+
+      <!-- ER Scheduler Tab Content -->
+      <div x-show="activeTab === 'scheduler'">
+        <!-- Connection Status -->
+        <div class="status-bar">
+        <div
+          class="status"
+          :class="isConnected ? 'status-connected' : 'status-disconnected'"
+        >
+          <div class="status-indicator"></div>
+          <span x-text="isConnected ? 'Connected' : 'Disconnected'"></span>
+        </div>
+        <div class="er-stats" x-show="erState.totalRegistered >= 0">
+          <span>Waiting: <strong x-text="erState.waitingCount"></strong></span>
+          <span>Total: <strong x-text="erState.totalRegistered"></strong></span>
+        </div>
+      </div>
+
+      <!-- Message Area for Feedback -->
+      <div class="message-area-container">
+        <template x-for="msg in messages" :key="msg.id">
+          <div
+            class="message-area"
+            :class="msg.type"
+            x-show="msg.visible"
+            x-transition
+          >
+            <span x-text="msg.text"></span>
+            <button @click="removeMessage(msg.id)">&times;</button>
+          </div>
+        </template>
+      </div>
+
+      <!-- Main Content -->
+      <main class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Left Panel: Patient Registration & Operations -->
+        <section class="card">
+          <header class="card-header">
+            <h2 class="card-title">Patient Registration</h2>
+          </header>
+
+          <div class="card-content">
+            <!-- Manual Registration Form -->
+            <div class="form-section">
+              <h3>Register Patient</h3>
+              <p class="operation-description">Register a new patient arriving at the emergency room.</p>
+              <form @submit.prevent="registerPatient">
+                <div class="form-group">
+                  <label for="patientName">Name</label>
+                  <input
+                    type="text"
+                    id="patientName"
+                    x-model="newPatient.name"
+                    required
+                    placeholder="John Doe"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="severity">Severity (1-5)</label>
+                  <select id="severity" x-model="newPatient.severity" required>
+                    <option value="1">1 - Minor</option>
+                    <option value="2">2 - Low</option>
+                    <option value="3">3 - Moderate</option>
+                    <option value="4">4 - Serious</option>
+                    <option value="5">5 - Critical</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="condition">Condition</label>
+                  <input
+                    type="text"
+                    id="condition"
+                    x-model="newPatient.condition"
+                    required
+                    placeholder="Broken arm"
+                  />
+                </div>
+
+                <div class="button-group">
+                  <button type="submit" class="btn btn-primary">
+                    Register Patient
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    @click="generateRandomPatient"
+                  >
+                    Generate Random Patient
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Bulk Random Registration -->
+            <div class="form-section">
+              <h3>Register Multiple Random Patients</h3>
+              <p class="operation-description">Quickly populate the ER with randomly generated patients for testing data structure operations.</p>
+              <form @submit.prevent="registerMultipleRandom">
+                <div class="form-group">
+                  <label for="numPatients">Number of Patients</label>
+                  <input
+                    type="number"
+                    id="numPatients"
+                    x-model="bulkRegister.count"
+                    required
+                    min="1"
+                    max="50"
+                    placeholder="e.g., 5"
+                  />
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  Register Multiple Patients
+                </button>
+              </form>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Treatment Operations -->
+            <div class="form-section">
+              <h3>Treatment Operations</h3>
+              <p class="operation-description">Treat the highest severity patient or preview who's next without removing them.</p>
+              <div class="button-group-vertical">
+                <button class="btn btn-success" @click="treatPatient">
+                  Treat Next Patient
+                </button>
+                <button class="btn btn-secondary" @click="peekPatient">
+                  Peek Next Patient
+                </button>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Update Severity -->
+            <div class="form-section">
+              <h3>Update Patient Severity</h3>
+              <p class="operation-description">Change a patient's severity level, which may affect their treatment priority.</p>
+              <form @submit.prevent="updateSeverity">
+                <div class="form-group">
+                  <label for="updatePatientId">Patient ID</label>
+                  <input
+                    type="number"
+                    id="updatePatientId"
+                    x-model="updateForm.patientId"
+                    required
+                    min="1"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="updateSeverity">New Severity (1-5)</label>
+                  <select id="updateSeverity" x-model="updateForm.severity" required>
+                    <option value="1">1 - Minor</option>
+                    <option value="2">2 - Low</option>
+                    <option value="3">3 - Moderate</option>
+                    <option value="4">4 - Serious</option>
+                    <option value="5">5 - Critical</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  Update Severity
+                </button>
+              </form>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- System Operations -->
+            <div class="form-section">
+              <h3>System Operations</h3>
+              <p class="operation-description">View all registered patients sorted by arrival time, or reset the entire system.</p>
+              <div class="button-group-vertical">
+                <button class="btn btn-secondary" @click="getAllPatients">
+                  View All Patients
+                </button>
+                <button class="btn btn-danger" @click="clearAll">
+                  Clear All Patients
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Right Panel: Query Operations -->
+        <section class="card">
+          <header class="card-header">
+            <h2 class="card-title">Query Operations</h2>
+          </header>
+
+          <div class="card-content">
+            <!-- Range Search -->
+            <div class="form-section">
+              <h3>Range Search (AVL Tree)</h3>
+              <p class="operation-description">Find all patients who arrived within a specific time range.</p>
+              <form @submit.prevent="rangeSearch">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="rangeStart">Start Time</label>
+                    <input
+                      type="number"
+                      id="rangeStart"
+                      x-model="queryForm.rangeStart"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="rangeEnd">End Time</label>
+                    <input
+                      type="number"
+                      id="rangeEnd"
+                      x-model="queryForm.rangeEnd"
+                      required
+                    />
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  Search Range
+                </button>
+              </form>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Rank Query -->
+            <div class="form-section">
+              <h3>Rank Query (AVL Tree)</h3>
+              <p class="operation-description">Count how many patients arrived before a given time.</p>
+              <form @submit.prevent="rankQuery">
+                <div class="form-group">
+                  <label for="rankTime">Arrival Time</label>
+                  <input
+                    type="number"
+                    id="rankTime"
+                    x-model="queryForm.rankTime"
+                    required
+                  />
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  Get Rank
+                </button>
+              </form>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- K-th By Arrival -->
+            <div class="form-section">
+              <h3>K-th Patient by Arrival (AVL Tree)</h3>
+              <p class="operation-description">Find the k-th patient who arrived (e.g., k=1 is first arrival, k=2 is second).</p>
+              <form @submit.prevent="kthByArrival">
+                <div class="form-group">
+                  <label for="kArrival">K (Position)</label>
+                  <input
+                    type="number"
+                    id="kArrival"
+                    x-model="queryForm.kArrival"
+                    required
+                    min="1"
+                  />
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  Find K-th by Arrival
+                </button>
+              </form>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- K-th Most Severe -->
+            <div class="form-section">
+              <h3>K-th Most Severe (Priority Queue)</h3>
+              <p class="operation-description">Find the k-th most severe patient (e.g., k=1 is most severe, k=2 is second most).</p>
+              <form @submit.prevent="kthMostSevere">
+                <div class="form-group">
+                  <label for="kSevere">K (Position)</label>
+                  <input
+                    type="number"
+                    id="kSevere"
+                    x-model="queryForm.kSevere"
+                    required
+                    min="1"
+                  />
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  Find K-th Most Severe
+                </button>
+              </form>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Remove From Queue -->
+            <div class="form-section">
+              <h3>Remove Patient from Queue</h3>
+              <p class="operation-description">Remove a specific patient who left before treatment.</p>
+              <form @submit.prevent="removeFromQueue">
+                <div class="form-group">
+                  <label for="removePatientId">Patient ID</label>
+                  <input
+                    type="number"
+                    id="removePatientId"
+                    x-model="queryForm.removeId"
+                    required
+                    min="1"
+                  />
+                </div>
+                <button type="submit" class="btn btn-warning">
+                  Remove from Queue
+                </button>
+              </form>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Results Section (Full Width) -->
+      <section class="card" x-show="results.visible" style="margin-top: 1.5rem;">
+        <header class="card-header">
+          <h2 class="card-title">Results</h2>
+        </header>
+        <div class="card-content">
+          <div class="results-box">
+            <p class="results-message" x-text="results.message"></p>
+
+            <!-- Patient List Results -->
+            <div x-show="results.patients && results.patients.length > 0">
+              <div class="patient-list">
+                <template x-for="patient in results.patients" :key="patient.id">
+                  <div class="patient-card">
+                    <div class="patient-header">
+                      <strong x-text="patient.name"></strong>
+                      <span class="patient-id">Patient ID: <span x-text="patient.id"></span></span>
+                    </div>
+                    <div class="patient-details">
+                      <span class="severity-badge" :class="'severity-' + patient.severity">
+                        Severity: <span x-text="patient.severity"></span>
+                      </span>
+                      <span x-text="patient.condition"></span>
+                      <span x-show="patient.arrivalTime !== undefined" class="arrival-time">Arrival Time: <span x-text="patient.arrivalTime"></span></span>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- Single Patient Result -->
+            <template x-if="results.patient && !results.patients">
+              <div class="patient-card">
+                <div class="patient-header">
+                  <strong x-text="results.patient.name"></strong>
+                  <span class="patient-id">Patient ID: <span x-text="results.patient.id"></span></span>
+                </div>
+                <div class="patient-details">
+                  <span class="severity-badge" :class="'severity-' + results.patient.severity">
+                    Severity: <span x-text="results.patient.severity"></span>
+                  </span>
+                  <span x-text="results.patient.condition"></span>
+                  <span x-show="results.patient.arrivalTime !== undefined" class="arrival-time">Arrival Time: <span x-text="results.patient.arrivalTime"></span></span>
+                </div>
+              </div>
+            </template>
+
+            <!-- Numeric Result -->
+            <div x-show="results.numericValue !== null && results.numericValue !== undefined">
+              <p class="numeric-result">
+                Value: <strong x-text="results.numericValue"></strong>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      </div>
+      <!-- End ER Scheduler Tab Content -->
+
+      <!-- AVL Tree Visualization Tab Content -->
+      <div x-show="activeTab === 'visualization'">
+        <!-- Visualization Connection Status -->
+        <div class="status-bar">
+          <div
+            class="status"
+            :class="vizConnected ? 'status-connected' : 'status-disconnected'"
+          >
+            <div class="status-indicator"></div>
+            <span x-text="vizConnected ? 'Connected' : 'Disconnected'"></span>
+          </div>
+          <div class="er-stats" x-show="vizState.snapshotCount >= 0">
+            <span>Snapshots: <strong x-text="vizState.snapshotCount"></strong></span>
+            <span>Tree Size: <strong x-text="vizState.treeSize"></strong></span>
+            <span>Height: <strong x-text="vizState.treeHeight"></strong></span>
+          </div>
+        </div>
+
+        <!-- Message Area for Visualization -->
+        <div class="message-area-container">
+          <template x-for="msg in vizMessages" :key="msg.id">
+            <div
+              class="message-area"
+              :class="msg.type"
+              x-show="msg.visible"
+              x-transition
+            >
+              <span x-text="msg.text"></span>
+              <button @click="removeVizMessage(msg.id)">&times;</button>
+            </div>
+          </template>
+        </div>
+
+        <!-- Main Visualization Content -->
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Left Panel: Tree Controls -->
+          <section class="card">
+            <header class="card-header">
+              <h2 class="card-title">Tree Controls</h2>
+            </header>
+
+            <div class="card-content">
+              <!-- Insert Node -->
+              <div class="form-section">
+                <h3>Insert Node</h3>
+                <form @submit.prevent="vizInsertNode">
+                  <div class="form-group">
+                    <label for="vizPatientName">Patient Name</label>
+                    <input
+                      type="text"
+                      id="vizPatientName"
+                      x-model="vizForm.name"
+                      required
+                      placeholder="John Doe"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="vizSeverity">Severity (1-5)</label>
+                    <select id="vizSeverity" x-model="vizForm.severity" required>
+                      <option value="1">1 - Minor</option>
+                      <option value="2">2 - Low</option>
+                      <option value="3">3 - Moderate</option>
+                      <option value="4">4 - Serious</option>
+                      <option value="5">5 - Critical</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="vizCondition">Condition</label>
+                    <input
+                      type="text"
+                      id="vizCondition"
+                      x-model="vizForm.condition"
+                      required
+                      placeholder="Broken arm"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="vizArrivalTime">Arrival Time (optional)</label>
+                    <input
+                      type="number"
+                      id="vizArrivalTime"
+                      x-model="vizForm.arrivalTime"
+                      placeholder="Auto-generated"
+                    />
+                  </div>
+                  <div class="button-group">
+                    <button type="submit" class="btn btn-primary">
+                      Insert Node
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      @click="generateRandomVizPatient"
+                    >
+                      Generate Random
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <div class="divider"></div>
+
+              <!-- Insert Multiple Random Nodes -->
+              <div class="form-section">
+                <h3>Insert Multiple Random Nodes</h3>
+                <p class="operation-description">Quickly populate the tree with randomly generated nodes for testing.</p>
+                <form @submit.prevent="vizInsertMultipleRandom">
+                  <div class="form-group">
+                    <label for="vizNumNodes">Number of Nodes</label>
+                    <input
+                      type="number"
+                      id="vizNumNodes"
+                      x-model="vizBulkInsert.count"
+                      required
+                      min="1"
+                      max="50"
+                      placeholder="e.g., 5"
+                    />
+                  </div>
+                  <button type="submit" class="btn btn-primary">
+                    Insert Multiple Nodes
+                  </button>
+                </form>
+              </div>
+
+              <div class="divider"></div>
+
+              <!-- Remove Node -->
+              <div class="form-section">
+                <h3>Remove Node</h3>
+                <form @submit.prevent="vizRemoveNode">
+                  <div class="form-group">
+                    <label for="vizRemoveTime">Arrival Time</label>
+                    <input
+                      type="number"
+                      id="vizRemoveTime"
+                      x-model="vizForm.removeTime"
+                      required
+                    />
+                  </div>
+                  <button type="submit" class="btn btn-warning">
+                    Remove Node
+                  </button>
+                </form>
+              </div>
+
+              <div class="divider"></div>
+
+              <!-- System Operations -->
+              <div class="form-section">
+                <h3>System Operations</h3>
+                <div class="button-group-vertical">
+                  <button class="btn btn-secondary" @click="vizResetHistory">
+                    Reset History
+                  </button>
+                  <button class="btn btn-danger" @click="vizClearTree">
+                    Clear Tree
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Center Panel: Tree Visualization -->
+          <section class="card viz-tree-card">
+            <header class="card-header">
+              <h2 class="card-title">Tree Structure</h2>
+            </header>
+
+            <div class="card-content viz-tree-content">
+              <div class="tree-container">
+                <svg
+                  id="tree-svg"
+                  x-ref="treeSvg"
+                  viewBox="0 0 800 600"
+                  preserveAspectRatio="xMidYMid meet"
+                >
+                  <!-- Tree will be rendered here -->
+                </svg>
+              </div>
+
+              <!-- Current Snapshot Info -->
+              <div class="snapshot-info" x-show="currentSnapshot">
+                <div class="snapshot-info-item">
+                  <span class="label">Operation:</span>
+                  <span class="value" x-text="currentSnapshot?.operation || 'N/A'"></span>
+                </div>
+                <div class="snapshot-info-item">
+                  <span class="label">Description:</span>
+                  <span class="value" x-text="currentSnapshot?.description || 'N/A'"></span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Right Panel: Snapshot Timeline -->
+          <section class="card">
+            <header class="card-header">
+              <h2 class="card-title">Snapshot Timeline</h2>
+            </header>
+
+            <div class="card-content">
+              <!-- Playback Controls -->
+              <div class="playback-controls">
+                <button
+                  class="btn btn-sm btn-secondary"
+                  @click="vizGotoSnapshot(0)"
+                  :disabled="!hasSnapshots"
+                >
+                  ⏮ First
+                </button>
+                <button
+                  class="btn btn-sm btn-secondary"
+                  @click="vizPrevSnapshot"
+                  :disabled="currentSnapshotIndex <= 0"
+                >
+                  ◀ Prev
+                </button>
+                <button
+                  class="btn btn-sm btn-secondary"
+                  @click="vizNextSnapshot"
+                  :disabled="currentSnapshotIndex >= vizState.snapshotCount - 1"
+                >
+                  Next ▶
+                </button>
+                <button
+                  class="btn btn-sm btn-secondary"
+                  @click="vizGotoSnapshot(vizState.snapshotCount - 1)"
+                  :disabled="!hasSnapshots"
+                >
+                  Last ⏭
+                </button>
+              </div>
+
+              <div class="divider"></div>
+
+              <!-- Snapshot List -->
+              <div class="snapshot-list">
+                <template x-for="(snapshot, index) in snapshotList" :key="index">
+                  <div
+                    class="snapshot-item"
+                    :class="{ 'active': index === currentSnapshotIndex }"
+                    @click="vizGotoSnapshot(index)"
+                  >
+                    <div class="snapshot-item-header">
+                      <span class="snapshot-index">#<span x-text="index"></span></span>
+                      <span class="snapshot-operation" x-text="snapshot.operation"></span>
+                    </div>
+                    <div class="snapshot-item-description" x-text="snapshot.description"></div>
+                  </div>
+                </template>
+
+                <div x-show="!hasSnapshots" class="no-snapshots">
+                  No snapshots available. Insert a node to get started.
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+      <!-- End AVL Tree Visualization Tab Content -->
+    </div>
+  </body>
+</html>
